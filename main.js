@@ -1,81 +1,104 @@
-import './style.css';
-import {Map, View} from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import OSM from 'ol/source/OSM';
+import 'ol/ol.css';
+import Map from 'ol/Map.js';
+import View from 'ol/View.js';
+import TileLayer from 'ol/layer/Tile.js';
+import ImageLayer from 'ol/layer/Image.js';
+import OSM from 'ol/source/OSM.js';
+import ImageWMS from 'ol/source/ImageWMS.js';
+import { Draw, Modify, Snap } from 'ol/interaction.js';
+import { Vector as VectorSource } from 'ol/source.js';
+import { Vector as VectorLayer } from 'ol/layer.js';
+import { OverviewMap, defaults as defaultControls } from 'ol/control.js';
+import { DragRotateAndZoom, defaults as defaultInteractions } from 'ol/interaction.js';
+import { useGeographic } from 'ol/proj.js';
 
+// Call useGeographic once to work with [longitude, latitude] coordinates
+useGeographic();
 
-//-- lớp Image --
-import ImageLayer from 'ol/layer/Image';
-//-- lớp ImageWMS --
-import ImageWMS from 'ol/source/ImageWMS';
-import XYZ from 'ol/source/XYZ';
-
-//-- Dữ liệu bản đồ chuyên đề --
+// Verify the URL for WMS layer
 const layers = [
-  //-- lớp nền OSM --
   new TileLayer({
     source: new OSM()
   }),
-  //-- bản đồ nền phường Đức Thắng --
   new ImageLayer({
-    //extent: [105.77096227779482, 21.07072342708786,
-    //         105.78266848435597, 21.086510768213763],
     source: new ImageWMS({
       url: 'http://localhost:8080/geoserver/ducthangmap/wms',
       params: {
+        'TILED': true,
         'FORMAT': 'image/png',
         'VERSION': '1.1.1',
         'STYLES': '',
-        'LAYERS': 'lbs_app_2024:DucThang_LBS_Basemap',
+        'LAYERS': 'ducthangmap:ducthangmap',
       },
       ratio: 1,
       serverType: 'geoserver',
-      imageLoadFunction: function(image, src) {
-           var params = new URLSearchParams(src.slice(src.indexOf('?')));
-           console.log('bounds', params.get('BBOX'));
-           image.getImage().src = src;
-         }
     })
   }),
 ];
 
-//-- Đối tượng bản đồ --
+const source = new VectorSource();
+const vector = new VectorLayer({
+  source: source,
+  style: {
+    'fill-color': 'rgba(255, 255, 255, 0.2)',
+    'stroke-color': '#ffcc33',
+    'stroke-width': 2,
+    'circle-radius': 7,
+    'circle-fill-color': '#ffcc33',
+  },
+});
+
+const overviewMapControl = new OverviewMap({
+  // Custom CSS used in overviewmap-custom.html
+  className: 'ol-overviewmap ol-custom-overviewmap',
+  layers: [
+    new TileLayer({
+      source: new OSM({
+        'url': 'https://{a-c}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=56a90e5852d24988858fe169e5fca684',
+      }),
+    }),
+  ],
+  collapseLabel: '\u00BB',
+  label: '\u00AB',
+  collapsed: false,
+});
+
+const rotateWithView = document.getElementById('rotateWithView');
+rotateWithView.addEventListener('change', function () {
+  overviewMapControl.setRotateWithView(this.checked);
+});
+
 const map = new Map({
+  controls: defaultControls().extend([overviewMapControl]),
+  interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
   target: 'map',
-  layers: layers,
+  layers: [...layers, vector],
   view: new View({
-    center: [11774909.8, 2401172.3],
+    center: [105.7762, 21.078], // Coordinates in EPSG:4326
     zoom: 15,
   })
 });
-const overviewMapControl = new OverviewMap({
-  layers: [
-    new TileLayer({
-      source: new XYZ(
-        {
-          url: 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          maxZoom: 19
-        }
-      )
-    })
-  ]
-})
-// var mapView = new ol.View({
-//  center:ol.proj.fromLonLat([105.78266848435597, 21.086510768213763]),
-//  zoom: 8,
-// })
-// var map = new ol.Map({
-//   target:"map",
-//   layers:[
-//     new ol.layer.Tile({
-//       source: new ol.source.OSM()
-//     })
-//   ],
-//   view:mapView
-//  });
-//  var OSM = new ol.layer.Tile({
-//   title: 'OpenStreetMap',
-//   visible: true,
-//   source: new ol.source.OSM()
-//  });
-//  map.addLayer(OSM)
+
+const modify = new Modify({ source: source });
+map.addInteraction(modify);
+
+let draw, snap;
+const typeSelect = document.getElementById('type');
+
+function addInteractions() {
+  draw = new Draw({
+    source: source,
+    type: typeSelect.value,
+  });
+  map.addInteraction(draw);
+  snap = new Snap({ source: source });
+  map.addInteraction(snap);
+}
+
+typeSelect.onchange = function () {
+  map.removeInteraction(draw);
+  map.removeInteraction(snap);
+  addInteractions();
+};
+
+addInteractions();

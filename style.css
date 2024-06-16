@@ -4,20 +4,62 @@ html, body {
   margin: 0;
   height: 100%;
 }
+
 #map {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  /* position: absolute;
-  top: 100px;
-  bottom: 100px;
-  width: 100%; */
+  position: absolute;
+  top: 100px; /* Thay đổi vị trí top tùy theo yêu cầu của bạn */
+  bottom: 100px; /* Thay đổi vị trí bottom tùy theo yêu cầu của bạn */
+  width: 100%;
 }
+
 p {
   font-family: 'Times New Roman', Times, serif;
   font-size: 30px;
   color: cadetblue;
   text-align: center;
+}
+
+form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Điều chỉnh CSS cho bản đồ tổng quan */
+.map .ol-custom-overviewmap,
+.map .ol-custom-overviewmap.ol-uncollapsible {
+  bottom: auto;
+  left: auto;
+  right: 0;
+  top: 0;
+}
+
+.map .ol-custom-overviewmap:not(.ol-collapsed) {
+  border: 1px solid black;
+}
+
+.map .ol-custom-overviewmap .ol-overviewmap-map {
+  border: none;
+  width: 300px; /* Điều chỉnh độ rộng của bản đồ tổng quan */
+}
+
+.map .ol-custom-overviewmap .ol-overviewmap-box {
+  border: 2px solid red; /* Đặt viền màu đỏ cho khung bản đồ tổng quan */
+}
+
+.map .ol-custom-overviewmap:not(.ol-collapsed) button {
+  bottom: auto;
+  left: auto;
+  right: 1px; /* Điều chỉnh vị trí nút điều khiển tổng quan */
+  top: 1px; /* Điều chỉnh vị trí nút điều khiển tổng quan */
+}
+
+.map .ol-rotate {
+  top: 170px;
+  right: 0;
 }
