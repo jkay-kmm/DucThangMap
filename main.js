@@ -12,6 +12,7 @@ import { OverviewMap, defaults as defaultControls } from 'ol/control.js';
 import { DragRotateAndZoom, defaults as defaultInteractions } from 'ol/interaction.js';
 import { useGeographic } from 'ol/proj.js';
 
+
 // Call useGeographic once to work with [longitude, latitude] coordinates
 useGeographic();
 
@@ -35,7 +36,17 @@ const layers = [
     })
   }),
 ];
+document.getElementById('zoom-out').onclick = function () {
+  const view = map.getView();
+  const zoom = view.getZoom();
+  view.setZoom(zoom - 1);
+};
 
+document.getElementById('zoom-in').onclick = function () {
+  const view = map.getView();
+  const zoom = view.getZoom();
+  view.setZoom(zoom + 1);
+};
 const source = new VectorSource();
 const vector = new VectorLayer({
   source: source,

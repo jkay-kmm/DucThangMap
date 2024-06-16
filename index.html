@@ -41,11 +41,29 @@
       .popover-body {
         min-width: 276px;
       }
+
+      /* Style for Zoom buttons */
+      .zoom-controls {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        z-index: 1000; /* Ensure it's above other elements */
+      }
     </style>
   </head>
   <body>
+    
+    <a class="skiplink" href="#map">Go to map</a>
     <p>BẢN ĐỒ PHƯỜNG ĐỨC THẮNG</p>
-    <div id="map" class="map"></div>
+    <!-- <div id="map" class="map"></div> -->
+    <div id="map" class="map" tabindex="0"></div>
+    
+    <!-- Zoom controls -->
+    <div class="zoom-controls">
+      <button id="zoom-out">Zoom out</button>
+      <button id="zoom-in">Zoom in</button>
+    </div>
+    
     <form>
       <label for="type">Geometry type &nbsp;</label>
       <select id="type">
